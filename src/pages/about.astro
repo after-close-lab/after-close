@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="关于" description="After Close 的项目定位、工作方式与边界。">
+  <section class="page-head shell about-head">
+    <p class="eyebrow">ABOUT AFTER CLOSE</p>
+    <h1>真正的交易成长，<br />发生在收盘之后。</h1>
+    <p>After Close 是一套交易决策记录协议、一个由 Git 驱动的长期档案库，也是一间封闭协作、公开阅读的交易实验室。</p>
+  </section>
+  <section class="shell prose standalone-prose">
+    <h2>为什么存在</h2>
+    <p>很多交易记录只保存结果，忽略决策发生时的背景、风险与退出计划。时间一长，失败被遗忘，判断被事后重构，也就无法看见个人交易系统真正如何变化。</p>
+    <p>After Close 用结构化记录和 Git 时间线保存当时的真实判断，再通过周期复盘识别执行偏差、重复错误和方法边界。</p>
+
+    <h2>核心资产</h2>
+    <ol>
+      <li><strong>交易记录：</strong>判断、仓位影响、风险、执行与结果。</li>
+      <li><strong>交易方法：</strong>长期形成的风格、边界和行为模式。</li>
+      <li><strong>群体知识：</strong>不同风格和市场环境下可回看的真实案例。</li>
+    </ol>
+
+    <h2>如何运作</h2>
+    <p>受邀成员通过 Agent Skill 将自然语言整理为 Markdown 与 YAML，确定性脚本负责 ID、路径、Schema、权限和敏感信息检查。记录经个人分支和 Pull Request 进入受保护的主分支，再由 GitHub Pages 发布。</p>
+
+    <h2>参与方式</h2>
+    <p>项目不开放注册、不接受公开申请，也不提供网页投稿入口。Skill 可以公开复用，但写入权限、成员身份和个人目录由维护者严格分配。</p>
+
+    <h2>不是什么</h2>
+    <p>它不是行情工具、投资产品、荐股社区、跟单平台或收益展示榜。项目不优化实时性，不试图告诉读者现在应该买什么。</p>
+  </section>
+</BaseLayout>

@@ -1,0 +1,4 @@
+interface:
+  display_name: "After Close"
+  short_description: "Record, validate, review, and publish decision journals"
+  default_prompt: "Use $after-close to record and validate my latest trading decision."

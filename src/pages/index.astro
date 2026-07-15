@@ -1,0 +1,90 @@
+---
+import { getCollection } from 'astro:content';
+import RecordCard from '../components/RecordCard.astro';
+import ReviewCard from '../components/ReviewCard.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../lib/site';
+
+const [members, records, reviews] = await Promise.all([
+  getCollection('members'),
+  getCollection('records'),
+  getCollection('reviews')
+]);
+const sortedRecords = records.sort((a, b) => b.data.recorded_at.getTime() - a.data.recorded_at.getTime());
+const sortedReviews = reviews.sort((a, b) => b.data.created_at.getTime() - a.data.created_at.getTime());
+const realRecords = records.filter((record) => !record.data.is_demo);
+const activeMembers = members.filter((member) => member.data.status === 'active' && !member.data.is_demo);
+const completedCases = new Set(
+  realRecords
+    .filter((record) => ['close', 'expire', 'cancel'].includes(record.data.position_effect))
+    .map((record) => record.data.case_id)
+);
+---
+
+<BaseLayout>
+  <section class="hero shell">
+    <div class="hero-copy">
+      <p class="eyebrow">THE MARKET CLOSES. THE LEARNING BEGINS.</p>
+      <h1>记录收益曲线之外的<br /><em>判断、风险与成长。</em></h1>
+      <p class="hero-lead">
+        一个由少量、严格筛选的极客交易员共同维护的长期实践档案。保存交易发生当时的判断，诚实记录错误，让个人交易系统在时间中留下可验证的演化轨迹。
+      </p>
+      <div class="hero-actions">
+        <a class="button button-primary" href={withBase('/records')}>浏览决策档案</a>
+        <a class="button" href={withBase('/about')}>了解项目原则</a>
+      </div>
+    </div>
+    <aside class="principle-card" aria-label="项目原则">
+      <div class="terminal-line"><span>01</span> 封闭写入，开放阅读</div>
+      <div class="terminal-line"><span>02</span> 记录优先，观点其次</div>
+      <div class="terminal-line"><span>03</span> 风险优先于收益</div>
+      <div class="terminal-line"><span>04</span> 复盘先于结论</div>
+      <div class="terminal-line"><span>05</span> 不喊单，不跟单，不承诺</div>
+      <div class="terminal-status"><span></span> publication: after_close</div>
+    </aside>
+  </section>
+
+  <section class="stats-band">
+    <div class="shell stat-grid">
+      <div><strong>{activeMembers.length}</strong><span>活跃成员</span></div>
+      <div><strong>{realRecords.length}</strong><span>真实记录</span></div>
+      <div><strong>{completedCases.size}</strong><span>闭环 Case</span></div>
+      <div><strong>{reviews.filter((review) => !review.data.is_demo).length}</strong><span>周期复盘</span></div>
+    </div>
+  </section>
+
+  <section class="shell section-block">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">LATEST DECISIONS</p>
+        <h2>最近决策记录</h2>
+      </div>
+      <a href={withBase('/records')}>查看全部 →</a>
+    </div>
+    {sortedRecords.length > 0 ? (
+      <div class="card-grid">{sortedRecords.slice(0, 3).map((record) => <RecordCard record={record} />)}</div>
+    ) : (
+      <div class="empty-state">尚无公开记录。第一条记录将在相关市场收盘并通过校验后出现。</div>
+    )}
+  </section>
+
+  <section class="shell section-block split-section">
+    <div>
+      <div class="section-heading compact">
+        <div>
+          <p class="eyebrow">PERIODIC REVIEWS</p>
+          <h2>月度复盘</h2>
+        </div>
+      </div>
+      <div class="review-stack">
+        {sortedReviews.slice(0, 2).map((review) => <ReviewCard review={review} />)}
+      </div>
+    </div>
+    <aside class="boundary-panel">
+      <p class="eyebrow">WHAT THIS IS NOT</p>
+      <h2>这里没有下一只股票。</h2>
+      <p>没有实时行情、收益榜、交易提醒、点赞、关注或跟单入口。我们只保存已经发生的真实决策，以及人如何承担风险和修正错误。</p>
+      <a href={withBase('/disclaimer')}>阅读内容边界 →</a>
+    </aside>
+  </section>
+</BaseLayout>

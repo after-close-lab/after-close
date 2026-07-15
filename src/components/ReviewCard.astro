@@ -1,0 +1,24 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { formatDate, withBase } from '../lib/site';
+
+interface Props {
+  review: CollectionEntry<'reviews'>;
+}
+
+const { review } = Astro.props;
+const data = review.data;
+---
+
+<article class="review-card">
+  <div class="record-card-topline">
+    <span class="mono">{data.period}</span>
+    {data.is_demo && <span class="badge badge-demo">协议示例</span>}
+  </div>
+  <h2><a href={withBase(`/reviews/${review.id}`)}>{data.period} 月度复盘</a></h2>
+  <p>记录 {data.record_count} 条 · Case {data.case_count} 个 · 已闭环 {data.closed_case_count} 个</p>
+  <div class="tag-row">
+    {data.strategies.map((strategy) => <span class="tag">#{strategy}</span>)}
+  </div>
+  <small>创建于 {formatDate(data.created_at)}</small>
+</article>

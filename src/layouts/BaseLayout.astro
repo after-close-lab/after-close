@@ -1,0 +1,78 @@
+---
+import '../styles/global.css';
+import { SITE_DESCRIPTION, SITE_NAME, withBase } from '../lib/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const {
+  title = SITE_NAME,
+  description = SITE_DESCRIPTION,
+  noindex = false
+} = Astro.props;
+const pageTitle = title === SITE_NAME ? SITE_NAME : `${title} · ${SITE_NAME}`;
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : Astro.url;
+const currentPath = Astro.url.pathname;
+const nav = [
+  { href: withBase('/records'), label: '决策档案' },
+  { href: withBase('/members'), label: '成员' },
+  { href: withBase('/reviews'), label: '复盘' },
+  { href: withBase('/about'), label: '关于' }
+];
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0b0f0e" />
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+    <link rel="canonical" href={canonical} />
+    <title>{pageTitle}</title>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">跳至正文</a>
+    <header class="site-header">
+      <div class="shell nav-shell">
+        <a class="brand" href={withBase('/')} aria-label="After Close 首页">
+          <span class="brand-mark" aria-hidden="true">AC</span>
+          <span>
+            <strong>After Close</strong>
+            <small>decision archive</small>
+          </span>
+        </a>
+        <nav aria-label="主导航">
+          {nav.map((item) => (
+            <a
+              href={item.href}
+              aria-current={currentPath.startsWith(item.href.replace(/\/$/, '')) ? 'page' : undefined}
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+      </div>
+    </header>
+    <main id="content">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="shell footer-grid">
+        <div>
+          <p class="eyebrow">AFTER CLOSE / ARCHIVE</p>
+          <p>市场收盘，学习才刚刚开始。</p>
+        </div>
+        <p class="footer-note">
+          本站仅记录参与者个人实践与复盘，不构成投资建议、证券推荐、收益承诺或交易邀约。
+          <a href={withBase('/disclaimer')}>阅读完整声明</a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

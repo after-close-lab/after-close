@@ -1,0 +1,43 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { withBase } from '../../lib/site';
+
+const [members, records, reviews] = await Promise.all([
+  getCollection('members'), getCollection('records'), getCollection('reviews')
+]);
+---
+
+<BaseLayout title="成员" description="After Close 受邀成员与各自的公开记录范围。">
+  <section class="page-head shell">
+    <p class="eyebrow">MEMBERS / COVERAGE</p>
+    <h1>参与者</h1>
+    <p>成员严格邀请加入。每个人都公开说明自己记录什么、不记录什么。</p>
+  </section>
+  <section class="shell member-grid">
+    {members.map((member) => {
+      const memberRecords = records.filter((record) => record.data.author === member.data.trader_id);
+      const memberReviews = reviews.filter((review) => review.data.author === member.data.trader_id);
+      return (
+        <article class="member-card">
+          <div class="member-card-head">
+            <span class="avatar" aria-hidden="true">{member.data.display_name.slice(0, 1)}</span>
+            <div>
+              <div class="badge-row">
+                {member.data.is_demo && <span class="badge badge-demo">协议示例</span>}
+                <span class="badge">{member.data.status}</span>
+              </div>
+              <h2><a href={withBase(`/members/${member.data.trader_id}`)}>{member.data.display_name}</a></h2>
+              <span class="mono">@{member.data.trader_id}</span>
+            </div>
+          </div>
+          <p>{member.data.bio}</p>
+          <div class="member-stats">
+            <span><strong>{memberRecords.length}</strong> 记录</span>
+            <span><strong>{memberReviews.length}</strong> 复盘</span>
+          </div>
+        </article>
+      );
+    })}
+  </section>
+</BaseLayout>

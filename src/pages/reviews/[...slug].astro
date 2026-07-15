@@ -1,0 +1,73 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { formatDate, positionEffectLabels, withBase } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const reviews = await getCollection('reviews');
+  return reviews.map((review) => ({ params: { slug: review.id }, props: { review } }));
+}
+
+interface Props { review: CollectionEntry<'reviews'> }
+const { review } = Astro.props;
+const { Content } = await render(review);
+const [records, members] = await Promise.all([getCollection('records'), getCollection('members')]);
+const member = members.find((entry) => entry.data.trader_id === review.data.author);
+const related = review.data.related_records
+  .map((id) => records.find((record) => record.data.id === id))
+  .filter((record): record is CollectionEntry<'records'> => Boolean(record))
+  .sort((a, b) => a.data.occurred_at.getTime() - b.data.occurred_at.getTime());
+---
+
+<BaseLayout title={`${review.data.period} 月度复盘`} noindex={review.data.is_demo}>
+  <article class="review-detail shell">
+    <header class="detail-head">
+      <div class="badge-row">{review.data.is_demo && <span class="badge badge-demo">协议示例 · 非真实复盘</span>}</div>
+      <p class="eyebrow mono">{review.data.id}</p>
+      <h1>{review.data.period} 月度复盘</h1>
+      <div class="byline">
+        <span>记录者 {member?.data.display_name ?? review.data.author}</span>
+        <span>创建于 {formatDate(review.data.created_at)}</span>
+      </div>
+    </header>
+    <div class="review-summary-grid">
+      <div><strong>{review.data.record_count}</strong><span>记录</span></div>
+      <div><strong>{review.data.case_count}</strong><span>Case</span></div>
+      <div><strong>{review.data.closed_case_count}</strong><span>闭环</span></div>
+      <div><strong>{review.data.coverage_complete ? '完整' : '不完整'}</strong><span>覆盖声明</span></div>
+    </div>
+    <div class="detail-grid">
+      <div>
+        <div class="prose"><Content /></div>
+        <section class="disclaimer-box">
+          <strong>个人复盘</strong>
+          <p>本复盘服务于作者自己的行为改进，不构成未来交易建议。</p>
+        </section>
+      </div>
+      <aside class="detail-sidebar">
+        <section class="timeline-panel">
+          <p class="eyebrow">REFERENCED RECORDS</p>
+          <ol class="timeline">
+            {related.map((record) => (
+              <li>
+                <span class="timeline-dot" aria-hidden="true"></span>
+                <a href={withBase(`/records/${record.id}`)}>
+                  <small>{formatDate(record.data.occurred_at)}</small>
+                  <strong>{positionEffectLabels[record.data.position_effect]}</strong>
+                  <span>{record.data.title}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+        <section class="fact-panel">
+          <p class="eyebrow">REVIEW SIGNALS</p>
+          <h2>策略</h2>
+          <div class="tag-row">{review.data.strategies.map((tag) => <span class="tag">#{tag}</span>)}</div>
+          <h2>错误标签</h2>
+          <div class="tag-row">{review.data.top_error_tags.map((tag) => <span class="tag">#{tag}</span>)}</div>
+        </section>
+      </aside>
+    </div>
+  </article>
+</BaseLayout>

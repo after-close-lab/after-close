@@ -1,0 +1,95 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { directionLabels, formatDate, formatPercent, positionEffectLabels, withBase } from '../../lib/site';
+
+export async function getStaticPaths() {
+  const records = await getCollection('records');
+  return records.map((record) => ({ params: { slug: record.id }, props: { record } }));
+}
+
+interface Props { record: CollectionEntry<'records'> }
+const { record } = Astro.props;
+const { Content } = await render(record);
+const [allRecords, members] = await Promise.all([getCollection('records'), getCollection('members')]);
+const author = members.find((member) => member.data.trader_id === record.data.author);
+const timeline = allRecords
+  .filter((entry) => entry.data.case_id === record.data.case_id)
+  .sort((a, b) => a.data.occurred_at.getTime() - b.data.occurred_at.getTime());
+---
+
+<BaseLayout title={record.data.title} description={record.data.thesis} noindex={record.data.is_demo}>
+  <article class="record-detail shell">
+    <header class="detail-head">
+      <div class="badge-row">
+        {record.data.is_demo && <span class="badge badge-demo">协议示例 · 非真实交易</span>}
+        <span class="badge">{positionEffectLabels[record.data.position_effect]}</span>
+        <span class="badge">{record.data.status}</span>
+      </div>
+      <p class="eyebrow mono">{record.data.id}</p>
+      <h1>{record.data.title}</h1>
+      <p class="detail-thesis">{record.data.thesis}</p>
+      <div class="byline">
+        <span>记录者 <a href={withBase(`/members/${record.data.author}`)}>{author?.data.display_name ?? record.data.author}</a></span>
+        <span>发生于 {formatDate(record.data.occurred_at, true)}</span>
+        <span>记录于 {formatDate(record.data.recorded_at, true)}</span>
+      </div>
+    </header>
+
+    <div class="detail-grid">
+      <div>
+        <section class="risk-panel" aria-labelledby="risk-title">
+          <div class="risk-panel-head">
+            <p class="eyebrow" id="risk-title">RISK FIRST</p>
+            <span class="mono">{record.data.risk.disclosure_mode}</span>
+          </div>
+          <dl>
+            <div><dt>仓位影响</dt><dd>{positionEffectLabels[record.data.position_effect]} · {formatPercent(record.data.risk.position_pct)}</dd></div>
+            <div><dt>风险预算</dt><dd>{formatPercent(record.data.risk.risk_budget_pct)}</dd></div>
+            <div><dt>失效条件</dt><dd>{record.data.risk.invalidation}</dd></div>
+            <div><dt>退出计划</dt><dd>{record.data.risk.exit_plan}</dd></div>
+          </dl>
+        </section>
+
+        <div class="prose"><Content /></div>
+
+        <section class="disclaimer-box">
+          <strong>个人实践记录</strong>
+          <p>本文仅记录作者在特定时间下的个人判断，不构成投资建议。作者可能持有相关资产，且可能继续改变仓位。</p>
+        </section>
+      </div>
+
+      <aside class="detail-sidebar">
+        <section class="fact-panel">
+          <p class="eyebrow">STRUCTURED DATA</p>
+          <dl>
+            <div><dt>标的</dt><dd class="symbol">{record.data.symbol}</dd></div>
+            <div><dt>市场</dt><dd>{record.data.market}</dd></div>
+            <div><dt>方向</dt><dd>{directionLabels[record.data.direction]}</dd></div>
+            <div><dt>资产</dt><dd>{record.data.asset_type}</dd></div>
+            <div><dt>周期</dt><dd>{record.data.holding_horizon}</dd></div>
+            <div><dt>信心</dt><dd>{record.data.confidence}/5</dd></div>
+          </dl>
+          <div class="tag-row">{record.data.strategies.map((tag) => <span class="tag">#{tag}</span>)}</div>
+        </section>
+
+        <section class="timeline-panel">
+          <p class="eyebrow">CASE TIMELINE</p>
+          <p class="mono case-id">{record.data.case_id}</p>
+          <ol class="timeline">
+            {timeline.map((entry) => (
+              <li class:list={{ current: entry.id === record.id }}>
+                <span class="timeline-dot" aria-hidden="true"></span>
+                <a href={withBase(`/records/${entry.id}`)}>
+                  <small>{formatDate(entry.data.occurred_at)}</small>
+                  <strong>{positionEffectLabels[entry.data.position_effect]}</strong>
+                  <span>{entry.data.title}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+      </aside>
+    </div>
+  </article>
+</BaseLayout>

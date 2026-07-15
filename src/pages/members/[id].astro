@@ -1,0 +1,70 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content';
+import RecordCard from '../../components/RecordCard.astro';
+import ReviewCard from '../../components/ReviewCard.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const members = await getCollection('members');
+  return members.map((member) => ({ params: { id: member.data.trader_id }, props: { member } }));
+}
+
+interface Props { member: CollectionEntry<'members'> }
+const { member } = Astro.props;
+const [records, reviews] = await Promise.all([getCollection('records'), getCollection('reviews')]);
+const memberRecords = records.filter((record) => record.data.author === member.data.trader_id)
+  .sort((a, b) => b.data.recorded_at.getTime() - a.data.recorded_at.getTime());
+const memberReviews = reviews.filter((review) => review.data.author === member.data.trader_id)
+  .sort((a, b) => b.data.created_at.getTime() - a.data.created_at.getTime());
+const cases = new Set(memberRecords.map((record) => record.data.case_id));
+const completedCases = new Set(memberRecords.filter((record) => ['close', 'expire', 'cancel'].includes(record.data.position_effect)).map((record) => record.data.case_id));
+const openRiskRecords = memberRecords.filter((record) => ['open', 'increase'].includes(record.data.position_effect));
+const riskComplete = openRiskRecords.filter((record) => record.data.risk.invalidation && record.data.risk.exit_plan).length;
+---
+
+<BaseLayout title={member.data.display_name} description={member.data.bio} noindex={member.data.noindex}>
+  <section class="member-profile shell">
+    <div class="profile-main">
+      <div class="badge-row">
+        {member.data.is_demo && <span class="badge badge-demo">协议示例 · 非真实成员</span>}
+        <span class="badge">{member.data.status}</span>
+      </div>
+      <p class="eyebrow mono">MEMBER / {member.data.trader_id}</p>
+      <h1>{member.data.display_name}</h1>
+      <p class="profile-bio">{member.data.bio}</p>
+      <blockquote>{member.data.philosophy}</blockquote>
+    </div>
+    <aside class="coverage-panel">
+      <p class="eyebrow">COVERAGE STATEMENT</p>
+      <dl>
+        <div><dt>记录账户</dt><dd>{member.data.coverage.accounts}</dd></div>
+        <div><dt>市场</dt><dd>{member.data.coverage.markets.join(' / ')}</dd></div>
+        <div><dt>品种</dt><dd>{member.data.coverage.instruments.join(' / ')}</dd></div>
+        <div><dt>发布策略</dt><dd>{member.data.coverage.publication_policy}</dd></div>
+        <div><dt>披露模式</dt><dd>{member.data.coverage.size_disclosure}</dd></div>
+      </dl>
+      <h2>包含</h2>
+      <ul>{member.data.coverage.included.map((item) => <li>{item}</li>)}</ul>
+      <h2>不包含</h2>
+      <ul>{member.data.coverage.excluded.map((item) => <li>{item}</li>)}</ul>
+    </aside>
+  </section>
+
+  <section class="stats-band profile-stats">
+    <div class="shell stat-grid">
+      <div><strong>{memberRecords.length}</strong><span>决策记录</span></div>
+      <div><strong>{cases.size}</strong><span>全部 Case</span></div>
+      <div><strong>{completedCases.size}</strong><span>闭环 Case</span></div>
+      <div><strong>{openRiskRecords.length === 0 ? '—' : `${Math.round(riskComplete / openRiskRecords.length * 100)}%`}</strong><span>风险字段完整率</span></div>
+    </div>
+  </section>
+
+  <section class="shell section-block">
+    <div class="section-heading"><h2>最近记录</h2></div>
+    <div class="card-grid">{memberRecords.slice(0, 6).map((record) => <RecordCard record={record} />)}</div>
+  </section>
+  <section class="shell section-block">
+    <div class="section-heading"><h2>周期复盘</h2></div>
+    <div class="review-stack">{memberReviews.map((review) => <ReviewCard review={review} />)}</div>
+  </section>
+</BaseLayout>

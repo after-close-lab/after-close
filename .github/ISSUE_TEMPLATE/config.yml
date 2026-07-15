@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 安全与隐私问题
+    url: https://github.com/after-close-lab/after-close/security/advisories/new
+    about: 请使用私密漏洞报告，不要在公开 Issue 中披露敏感信息。
+  - name: 项目原则与范围
+    url: https://github.com/after-close-lab/after-close/blob/main/CHARTER.md
+    about: 提交建议前请先确认是否符合项目宪章。

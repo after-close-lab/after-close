@@ -1,0 +1,27 @@
+frontmatter:
+  period: ""
+  created_at: ""
+  record_count: 0
+  case_count: 0
+  closed_case_count: 0
+  coverage_complete: false
+  strategies: []
+  top_error_tags: []
+  related_records: []
+  disclaimer: personal-review
+body: |
+  ## 本月概览
+
+  ## 有效判断
+
+  ## 错误判断
+
+  ## 执行偏差
+
+  ## 风险控制
+
+  ## 重复错误
+
+  ## 交易系统变化
+
+  ## 下月行为改进

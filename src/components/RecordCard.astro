@@ -1,0 +1,40 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { directionLabels, formatDate, positionEffectLabels, withBase } from '../lib/site';
+
+interface Props {
+  record: CollectionEntry<'records'>;
+}
+
+const { record } = Astro.props;
+const data = record.data;
+---
+
+<article
+  class="record-card"
+  data-record-card
+  data-author={data.author}
+  data-market={data.market}
+  data-symbol={data.symbol.toLowerCase()}
+  data-effect={data.position_effect}
+  data-strategies={data.strategies.join(' ')}
+>
+  <div class="record-card-topline">
+    <span class="mono">{formatDate(data.recorded_at)}</span>
+    <div class="badge-row">
+      {data.is_demo && <span class="badge badge-demo">协议示例</span>}
+      <span class="badge">{positionEffectLabels[data.position_effect]}</span>
+    </div>
+  </div>
+  <h2><a href={withBase(`/records/${record.id}`)}>{data.title}</a></h2>
+  <p>{data.thesis}</p>
+  <div class="record-meta">
+    <span class="symbol">{data.symbol}</span>
+    <span>{directionLabels[data.direction]}</span>
+    <span>{data.market}</span>
+    <span>信心 {data.confidence}/5</span>
+  </div>
+  <div class="tag-row">
+    {data.strategies.map((strategy) => <span class="tag">#{strategy}</span>)}
+  </div>
+</article>

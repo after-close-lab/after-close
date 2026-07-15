@@ -1,0 +1,18 @@
+---
+import { getCollection } from 'astro:content';
+import ReviewCard from '../../components/ReviewCard.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const reviews = (await getCollection('reviews')).sort((a, b) => b.data.created_at.getTime() - a.data.created_at.getTime());
+---
+
+<BaseLayout title="复盘" description="按月回看判断、执行偏差、风险控制和交易系统变化。">
+  <section class="page-head shell">
+    <p class="eyebrow">REVIEWS / LEARNING LOOP</p>
+    <h1>周期复盘</h1>
+    <p>复盘连接当期真实记录，区分判断错误与执行错误，只提出行为、流程和风险层面的改进。</p>
+  </section>
+  <section class="shell section-block no-top">
+    <div class="review-grid">{reviews.map((review) => <ReviewCard review={review} />)}</div>
+  </section>
+</BaseLayout>

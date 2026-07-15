@@ -1,0 +1,42 @@
+frontmatter:
+  case_id: null
+  title: ""
+  occurred_at: ""
+  recorded_at: ""
+  market: US
+  symbol: ""
+  asset_type: stock
+  direction: long
+  position_effect: open
+  currency: USD
+  holding_horizon: swing
+  strategies: []
+  confidence: 3
+  publication: after_close
+  risk:
+    disclosure_mode: percentage
+    position_pct: null
+    risk_budget_pct: null
+    invalidation: ""
+    exit_plan: ""
+  thesis: ""
+  status: active
+  disclaimer: personal-record
+  record_type: decision
+  sources: []
+  related_records: []
+  error_tags: []
+body: |
+  ## 市场背景
+
+  ## 决策
+
+  ## 核心判断
+
+  ## 风险与失效条件
+
+  ## 退出计划
+
+  ## 当时的状态
+
+  ## 后续观察

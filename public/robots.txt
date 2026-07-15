@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://after-close-lab.github.io/after-close/sitemap-index.xml

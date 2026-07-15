@@ -1,0 +1,28 @@
+trader_id: demo
+github: after-close-lab
+display_name: 协议示例
+bio: 用于验证内容协议、Case 时间线和网站构建的非真实成员。
+philosophy: 只演示如何记录判断、风险、执行和复盘，不代表任何真实交易。
+status: inactive
+joined_at: 2026-07-01
+timezone: Asia/Shanghai
+markets:
+  - OTHER
+instruments:
+  - stock
+strategies:
+  - experimental
+coverage:
+  accounts: 不对应任何真实账户
+  markets:
+    - OTHER
+  instruments:
+    - stock
+  included:
+    - 内容协议测试案例
+  excluded:
+    - 所有真实交易和真实资产信息
+  publication_policy: after_close
+  size_disclosure: percentage
+noindex: true
+is_demo: true
